@@ -1,0 +1,15 @@
+<h1>
+  <%= title %>
+</h1>
+<br />
+<a href="/add">Add List</a>
+<ul>
+  <% data.map(item=> { %>
+
+    <li>
+      <%= item.title %>
+        <button>Delete</button>
+    </li>
+
+    <% }) %>
+</ul>
