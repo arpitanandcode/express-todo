@@ -1,15 +1,16 @@
-<h1>
-  <%= title %>
-</h1>
-<br />
-<a href="/add">Add List</a>
-<ul>
-  <% data.map(item=> { %>
+<%- include("partials/header.ejs") %>
+  <br />
+  <a href="/add">Add List</a>
+  <ul>
+    <% data.map(item=> { %>
 
-    <li>
-      <%= item.title %>
-        <button>Delete</button>
-    </li>
+      <li>
+        <%= item.title %>
+          <a href="/delete/<%= item.id %>">Delete</a>
+          <a href="/edit/<%= item.id %>">Edit</a>
+          <a href="/details/<%= item.id %>">View</a>
+      </li>
 
-    <% }) %>
-</ul>
+      <% }) %>
+  </ul>
+  <%- include("partials/footer.ejs") %>
