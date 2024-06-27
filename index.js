@@ -6,13 +6,33 @@ import bodyParser from 'body-parser';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { fileURLToPath } from "url";
+
+import path, { dirname } from "path";
+
+import userList from './database/user.js';
+
+import session from "express-session";
+
 const app = express();
+
+app.use(session({
+  secret: 'express-to-do',
+  resave: false,
+  saveUninitialized: true
+}))
 
 app.set('view engine', 'ejs'); // Use to set the template engine
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(express.static('styles'))
+// to add an external file.
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = dirname(__filename);
+
+app.use(express.static(path.join(__dirname, 'styl'))); // to add any external styleeshet
 
 app.get('/', function (req, res) {
 
@@ -22,9 +42,7 @@ app.get('/', function (req, res) {
 });
 
 app.get('/add', function (req, res) {
-
   res.render('add.ejs', { title: 'Add to do list' });
-
 });
 
 app.post('/add/mypost', function (req, res) {
@@ -87,6 +105,61 @@ app.post('/edit/mypost/:id', (req, res) => {
 
   res.redirect('/');
 });
+
+app.get('/register', (req, res) => {
+  if (req?.session?.user) {
+    res.redirect('/profile');
+    return false;
+  }
+  res.render('register.ejs', { title: 'Register me!' });
+});
+
+app.post('/register/post', (req, res) => {
+  const users = userList;
+  users.push(req.body);
+  res.redirect('/login');
+});
+
+app.get('/login', (req, res) => {
+  if (req?.session?.user) {
+    res.redirect('/profile');
+    return false;
+  }
+  res.render('login.ejs', { title: 'Login me!' });
+});
+
+app.post('/login/post', (req, res) => {
+
+  // This is user entered
+  const user = req.body;
+
+  const users = userList;
+  const index = users.findIndex(function (item) {
+    if (item.email === user.email && item.password === user.password) {
+      return true;
+    }
+  });
+
+  if (index !== -1) {
+    // Save to session
+    req.session.user = user;
+    res.redirect('/profile');
+  }
+});
+
+app.get('/profile', (req, res) => {
+  if (req?.session?.user) {
+    res.render('profile.ejs', { user: req.session.user })
+  } else {
+    res.redirect('/login');
+  }
+})
+
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/login');
+});
+
 
 app.listen(8080, function () {
   console.log("App is working on 8080")
