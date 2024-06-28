@@ -14,6 +14,9 @@ import userList from './database/user.js';
 
 import session from "express-session";
 
+import mongoose from 'mongoose';
+import Task from './models/taskSchema.js';
+
 const app = express();
 
 app.use(session({
@@ -36,9 +39,12 @@ app.use(express.static(path.join(__dirname, 'styl'))); // to add any external st
 
 app.get('/', function (req, res) {
 
-  const data = todoList;
-
-  res.render('index.ejs', { title: 'To do ', data: data });
+  Task.find().then(response => {
+    console.log(response);
+    res.render('index.ejs', { title: 'To do ', data: response });
+  }).catch(err => {
+    console.log(err);
+  });
 });
 
 app.get('/add', function (req, res) {
@@ -50,11 +56,15 @@ app.post('/add/mypost', function (req, res) {
   // body-parser
   const list = req.body.todo;
 
-  const obj = { id: uuidv4(), title: list };
+  const obj = { title: list };
 
-  todoList.push(obj);
+  // todoList.push(obj);
 
-  res.redirect('/');
+  Task.create(obj).then(response => {
+    res.redirect('/');
+  }).catch(err => {
+    console.error(err);
+  })
 });
 
 app.get('/delete/:id', function (req, res) {
@@ -68,13 +78,13 @@ app.get('/delete/:id', function (req, res) {
 });
 
 app.get('/details/:id', function (req, res) {
-  const id = Number(req.params.id);
+  const id = (req.params.id);
 
   const index = todoList.findIndex((item) => item.id === id);
 
   const post = todoList[index];
 
-  res.render('details.ejs', { title: post.title })
+  res.render('details.ejs', { title: post?.title })
 
 });
 
@@ -162,5 +172,10 @@ app.get('/logout', (req, res) => {
 
 
 app.listen(8080, function () {
-  console.log("App is working on 8080")
+  // URI
+  mongoose.connect('mongodb+srv://dev:dev123@dev.qsf5a4u.mongodb.net/?retryWrites=true&w=majority&appName=dev').then(respose => {
+    console.log("App is working on 8080")
+  }).catch(err => {
+    console.log(err);
+  })
 })

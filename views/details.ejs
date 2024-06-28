@@ -1,4 +1,6 @@
 <%- include("partials/header.ejs") %>
   <div>
-    My todo details - <%= title %>
+    My todo details - <% if(title) { %>
+      <%= title %>
+        <% } %>
   </div>
