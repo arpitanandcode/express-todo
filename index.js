@@ -38,9 +38,8 @@ const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, 'styl'))); // to add any external styleeshet
 
 app.get('/', function (req, res) {
-
-  Task.find().then(response => {
-    console.log(response);
+  // Select * from tasks;
+  Task.find({ title: '1' }).then(response => {
     res.render('index.ejs', { title: 'To do ', data: response });
   }).catch(err => {
     console.log(err);
@@ -68,52 +67,67 @@ app.post('/add/mypost', function (req, res) {
 });
 
 app.get('/delete/:id', function (req, res) {
-  const id = Number(req.params.id);
+  const id = (req.params.id);
 
-  const index = todoList.findIndex((item) => item.id === id);
+  // const index = todoList.findIndex((item) => item.id === id);
 
-  todoList.splice(index, 1);
+  // todoList.splice(index, 1);
 
-  res.redirect('/');
+  Task.deleteOne({ _id: id }).then(resp => {
+    console.log(res);
+    res.redirect('/');
+  }).catch(err => {
+    console.log(err);
+  })
+
 });
 
 app.get('/details/:id', function (req, res) {
   const id = (req.params.id);
 
-  const index = todoList.findIndex((item) => item.id === id);
+  // const index = todoList.findIndex((item) => item.id === id);
 
-  const post = todoList[index];
-
-  res.render('details.ejs', { title: post?.title })
-
+  // const post = todoList[index];
+  // Select * from tasks where _id = id;
+  Task.findById(id).then(respons => {
+    console.log(respons);
+    res.render('details.ejs', { title: respons?.title })
+  })
 });
 
 app.get('/edit/:id', (req, res) => {
 
-  const id = Number(req.params.id); // Id
+  const id = (req.params.id); // Id
 
-  const index = todoList.findIndex((item) => item.id === id);
+  // const index = todoList.findIndex((item) => item.id === id);
 
-  const post = todoList[index];
+  // const post = todoList[index];
+  Task.findById(id).then(respons => {
+    console.log(respons);
+    res.render('edit.ejs', { title: respons.title, id: respons.id })
+  })
 
-  res.render('edit.ejs', { title: post.title, id: post.id })
+
 });
 
 app.post('/edit/mypost/:id', (req, res) => {
 
   const updatedItem = req.body;
 
-  const id = Number(req.params.id);
+  const id = (req.params.id);
 
   const item = updatedItem.editedTodo; // We got update value 
 
-  const index = todoList.findIndex((item) => item.id === id);
+  // const index = todoList.findIndex((item) => item.id === id);
 
-  const post = todoList[index];
+  // const post = todoList[index];
 
-  post.title = item;
+  // post.title = item;
+  // UPDATE TABLE-NAME SET SOMETHING WHERE USER_ID-ID
+  Task.updateOne({ _id: id }, { $set: { title: item } }).then(responses => {
+    res.redirect('/');
+  })
 
-  res.redirect('/');
 });
 
 app.get('/register', (req, res) => {
