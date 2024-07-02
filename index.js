@@ -38,8 +38,31 @@ const __dirname = dirname(__filename);
 app.use(express.static(path.join(__dirname, 'styl'))); // to add any external styleeshet
 
 app.get('/', function (req, res) {
-  // Select * from tasks;
-  Task.find({ title: '1' }).then(response => {
+  // Select * from tasks where title='aRPIT';
+  // Select title, age from task where rgmtelkrnmr;
+  Task.aggregate([
+    {
+      $limit: 5
+    },
+    {
+      $match: { title: /Ar/i }
+    },
+    {
+      $addFields: { 'age': 29 }
+    },
+    {
+      $project: {
+        title: 1,
+        _id: 1,
+      }
+    },
+    {
+      $sort: {
+        title: -1
+      }
+    },
+  ]).then(response => {
+    console.log(response);
     res.render('index.ejs', { title: 'To do ', data: response });
   }).catch(err => {
     console.log(err);
