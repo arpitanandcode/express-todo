@@ -37,6 +37,17 @@ const __dirname = dirname(__filename);
 
 app.use(express.static(path.join(__dirname, 'styl'))); // to add any external styleeshet
 
+// Custom Middleware
+
+function Logger(req, res, next) {
+  console.log(req.url + " " + req.method + " - " + new Date());
+  next();
+};
+
+app.use(Logger);
+
+// End of custom logger
+
 app.get('/', function (req, res) {
   // Select * from tasks where title='aRPIT';
   // Select title, age from task where rgmtelkrnmr;
@@ -62,7 +73,7 @@ app.get('/', function (req, res) {
       }
     },
   ]).then(response => {
-    console.log(response);
+
     res.render('index.ejs', { title: 'To do ', data: response });
   }).catch(err => {
     console.log(err);
@@ -97,7 +108,7 @@ app.get('/delete/:id', function (req, res) {
   // todoList.splice(index, 1);
 
   Task.deleteOne({ _id: id }).then(resp => {
-    console.log(res);
+
     res.redirect('/');
   }).catch(err => {
     console.log(err);
@@ -113,7 +124,7 @@ app.get('/details/:id', function (req, res) {
   // const post = todoList[index];
   // Select * from tasks where _id = id;
   Task.findById(id).then(respons => {
-    console.log(respons);
+
     res.render('details.ejs', { title: respons?.title })
   })
 });
